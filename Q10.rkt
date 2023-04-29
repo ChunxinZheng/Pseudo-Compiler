@@ -14,10 +14,10 @@
 (define unknown-function-error  (base-error "unknown function error"))
 (define duplicate-function-error  (base-error "duplicate function error"))
 (define duplicate-identifer-error  (base-error "duplicate identifer error"))
-(define malformed-function-error  (base-error "malformed function error"))
+(define malformed-function-error  (base-error "malformed function error (may miss return)"))
 (define unknown-identifer-error  (base-error "unknown function error"))
 (define missing-return-error  (base-error "missing return error"))
-(define arguments-error (base-error "incorrect number of arguements"))
+(define arguments-error (base-error "incorrect number of arguments"))
 
 
 (define inst (λ x (list x)))
@@ -137,7 +137,7 @@
              
           (inst 'sub 'fp  'sp num_args) ;; set the frame pointer to the first arg
         
-          (inst 'jsr '(-2 fp) id)
+          (inst 'jsr '(-2 fp) (string->symbol (format "_~a" id)))
           (inst 'move '(-2 fp) '(-1 sp))
              
           (inst 'sub 'sp 'fp 1) ;; set the frame pointer back such that the top of the stack is the result
@@ -360,7 +360,7 @@
             (define env  (function-environment func))
 
             (append
-             (inst 'label (string->symbol (format "~a" id)))
+             (inst 'label (string->symbol (format "_~a" id)))
              (compile-locals locals env)
              (compile-seq stmts env)
              (compile-stmt return env))]
