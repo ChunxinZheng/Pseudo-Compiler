@@ -10,7 +10,7 @@ A program without a ```main``` function does nothing. Therefore, during the firs
 
 ### Return
 Each function produces an integer value through a ```return``` statement. <br>
-To guarantee that there is always a returned value for a function, we defined a syntax rule that every function must have a ```return``` statement as its last statement. This rule is checked during the first scanning stage of the program, and the compiler will produces an error if it detects any instances of missing ```return```.
+To guarantee that there is always a returned value for a function, we defined a syntax rule that every function must have a ```return``` statement as its last statement. This rule is checked during the compilation of each function definition, and the compiler will produces an error if it detects any instances of missing ```return```.
 
 ### Stack Frame
 To support recursive calls for functions, we simulate a stack with two pointers, Stack Pointer ```sp``` and Frame Pointer ```fp```. <br>
@@ -24,7 +24,13 @@ Both pointers are mutated and dereferenced by basic arithmetics, [move][...], an
 
 
 ### Compiling a Function Definition
-When compiling a function definition,  corre
+The number of the function arguments and local variables remains unchanged. Thus we are able to deduce the address of any variable of the function relative to the ```fp```. <br>
+During the first scanning stage of the program, a table (```environment```) that maps each variable to the address in the stack relative to the ```fp``` where the value of such variable may be stored in during a function applicaiton. <br>
+<br>
+When compiling a function definition, a label with a name that corresponds to the function name is created for any future function calls to jump to. <br>
+<br>
+The compiled code for evaluating local variables and pushing them into the stack is appended (note that the process of evaluating and pushing the value of arguments will have be done at this point when [applying a function](#compiling-a-function-call)). <br>
+The rest of the function definition is compiled as usual statements with all occurrences of variables are replaced by their addresses relative to the ```fp``` based on the previously generated ```environment```.
 
 
 ### Compiling a Function Call
