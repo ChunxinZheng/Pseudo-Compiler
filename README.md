@@ -2,6 +2,7 @@
 This compiler was done as two consecutive assignment question of CS 146, W23 offering, instructed by Brad Lushman, at the University of Waterloo. Relevant assignments are [Q9:Compile SIMPL][1] and [Q10:Compile SIMPL-F][2]
 
 [1]: https://github.com/ChunxinZheng/Compiler/issues/1#issue-1693183409
+[2]: https://github.com/ChunxinZheng/Compiler/issues/2#issue-1693183617
 
 ## Table of Contents
 
