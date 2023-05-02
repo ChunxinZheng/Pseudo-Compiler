@@ -14,10 +14,10 @@
 ;; designed by the University of Waterloo CS 146 instructor team.
 ;; More detailed information, including the grammar for both languages as well as the
 ;; design of the stack management, is included in README.
-;; A-PRIMPL is an assemly language for a pseudocode PRIMPL, the assembler (assembler.rkt)
+;; A-PRIMPL is an assemly language for a pseudocode PRIMPL, the assembler (Assembler.rkt)
 ;; is also available, it was modified based on another project. More detailed information
 ;; about the project and the added feature were stated in README.
-;; The PRIMPL Simulator (simulator.rkt) was provided by the University of Waterloo CS 146
+;; The PRIMPL Simulator (Simulator.rkt) was provided by the University of Waterloo CS 146
 ;; instructor team.
 
 
@@ -25,9 +25,11 @@
 ;;    User Guide
 ;; ----------------------------------------
 
-(require "assembler.rkt" "simulator.rkt")
+(require "Assembler.rkt" "Simulator.rkt")
 
-
+(define (run-simpl simpl)
+  (define primpl (primpl-assemble (compile-simpl simpl)))
+  (load-primp primpl) (run-primp))
 
 
 
@@ -51,7 +53,7 @@
 ; Helper function, for readability
 (define inst (λ x (list x)))
 
-(define (stack-size) '(256 9973))
+(define (stack-size) '(1 9973))
 
 
 ;;     Compile (Main Function)

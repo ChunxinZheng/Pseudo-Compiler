@@ -2,6 +2,10 @@
 
 ;; AUTHORS: Lex Stapleton, Chunxin Zheng
 
+
+(provide primpl-assemble)
+
+
 ;;    Basic Information 
 ;; ---------------------------------------------------------------------
 
@@ -128,10 +132,6 @@
                         (cons (first lst) acc)
                         (+ (- (length (first lst)) 2) count)
                         (cons (make-data (first psymbol) count) table))]
-           [`(jsr ,dest ,pc)
-            (first-scan (rest lst)
-                        (cons (list 'move dest count) (cons (list 'jump pc) acc))
-                        (+ count 1) table)]
            [else (first-scan (rest lst) (cons (first lst) acc) (+ 1 count) table)])]))
 
 
@@ -265,7 +265,11 @@
        [else (incorrect-usage-error
               (format "cannot use ~a as a the destination of a jump/branchs" symbol))])]
     [(lit? symbol) symbol]
-    [else symbol]))
+    [else (match symbol
+            [`(,fst ,snd)
+     (list (resolve-index-first  table fst)
+           (resolve-index-second table snd))]
+            [else symbol])]))
 
 
 ;; ----- Resolving the Opd in Remaining Instructions -----
@@ -334,6 +338,9 @@
            [`(print-val ,opd) (translate (rest lst) table
                                          (cons (list 'print-val (resolve-opd table opd)) acc))]
            [`(print-string ,str) (translate (rest lst) table (cons (first lst) acc))]
+           [`(jsr ,dest ,loc) (translate (rest lst) table
+                                         (cons (list 'jsr (resolve-dest table dest)
+                                                     (resolve-jump-branch table loc)) acc))]
            [`(,fun ,dest ,opds ...)
             (translate (rest lst) table
                        (cons (append (list fun (resolve-dest table dest))
