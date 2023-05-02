@@ -1,12 +1,39 @@
 #lang racket
 
-;(require "Q8.rkt" "primpl.rkt")
+;(require test-engine/racket-tests)
+
 
 ;; AUTHORS: Lex Stapleton, Chunxin Zheng
 
 
 
-;(require test-engine/racket-tests)
+;;    Basic Information
+;; ----------------------------------------
+
+;; This is a compiler that converts a pseudocode SIMPL to A-PRIMPL. Both languages were
+;; designed by the University of Waterloo CS 146 instructor team.
+;; More detailed information, including the grammar for both languages as well as the
+;; design of the stack management, is included in README.
+;; A-PRIMPL is an assemly language for a pseudocode PRIMPL, the assembler (assembler.rkt)
+;; is also available, it was modified based on another project. More detailed information
+;; about the project and the added feature were stated in README.
+;; The PRIMPL Simulator (simulator.rkt) was provided by the University of Waterloo CS 146
+;; instructor team.
+
+
+
+;;    User Guide
+;; ----------------------------------------
+
+(require "assembler.rkt" "simulator.rkt")
+
+
+
+
+
+
+;;    Error Handling
+;; ----------------------------------------
 
 (define ((base-error msg) extra) (error (format "~a: ~a" msg extra)))
 
@@ -20,11 +47,39 @@
 (define arguments-error (base-error "incorrect number of arguments"))
 
 
+
+; Helper function, for readability
 (define inst (λ x (list x)))
 
 (define (stack-size) '(256 9973))
 
-;;    FUNCTION TABLE
+
+;;     Compile (Main Function)
+;; -----------------------------------------
+;; --- Compiles a SIMPL program 
+
+(define (compile-simpl prog)
+  (set! func-table (generate-function-table prog))
+  (define res (hash-ref func-table 'main #f))
+  (cond [(boolean? res) empty]
+        [else
+         (append
+          (inst 'jump '_MAIN)
+          (foldr append empty (map compile-func prog))
+          (inst 'label '_MAIN)
+          (apply-function 'main empty (make-hash))
+          (inst 'halt)
+          (inst 'data 'sp 'stack)
+          (inst 'data 'fp 'stack)
+          (inst 'data 'stack (stack-size)))]
+        ))
+
+(define func-table empty)
+;; [func-table] is a global variable, and is mutated in [compile-simpl] by [set!]
+
+
+
+;;    Function Table
 ;; -----------------------------------------
 ;;
 ;;  make-function-table prog
@@ -39,10 +94,10 @@
       [(empty? p) acc]
       [(hash-ref-key acc (caar p) #f) (err (caar p))]
       [else (h (cdr p)
-             (hash-set
-              acc
-              (first (first p))
-              (second (first p))))]))
+               (hash-set
+                acc
+                (first (first p))
+                (second (first p))))]))
   (h lst (make-immutable-hash)))
 
 (define (generate-environment vars)
@@ -60,9 +115,6 @@
                       ,(and locals `((,_ ,_) ...))
                       ,stmts ...
                       ,(and return `(return ,_)))))
-;       (display name)
-;        (display "----------!!!!!!!")
-;        (display (length args));;;; not working
        (list name
              (function
               name
@@ -78,78 +130,39 @@
        (missing-return-error src)]
       [x (malformed-function-error x)]))
   (make-hash-no-repeat (map h prog) duplicate-function-error))
-;
-;(define (get-number-args table name)
-;  (define out (hash-ref table name #f))
-;  (unless out (unknown-function-error (format "could not find function with id ~a" name)))
-;  (function-args-count out))
 
 (define (get-func table name)
   (define out (hash-ref table name #f))
   (unless out (unknown-function-error (format "could not find function with id ~a" name)))
   out)
 
-;;    TESTS
-;; -----------------------------------------
 
-;(check-error (make-function-table '((fun () (return 0)))))
-;(check-error (make-function-table '((fun (name1)))))
-;(check-error (make-function-table '((fun () (return 0)))))
-;(check-error (make-function-table '((func (name1) (return 0)))))
-;
-;
-;(define prog '((fun (name1) (vars [] (return 0))) (fun (name2 arg1) (vars [(id 1)] (return 0)))))
-;(define func-table (make-function-table prog))
-;
-;(check-expect (get-number-args func-table 'name1) 0)
-;(check-expect (get-number-args func-table 'name2) 1)
-;(check-expect (get-number-args func-table 'name3) 3)
-;(check-error (get-number-args func-table 'not-a-name))
-;(check-error (get-number-args func-table 5))
-
-
-;;    FUNCTIONS APP/ RETURN
+;;    Function Application
 ;; -----------------------------------------
 
 (define (apply-function id pars env)
-
   (define func (get-func func-table id))
   (define num_args (function-args func))
-  (define num_locals (function-locals func))
-;  (display "---------------------")
-;  (display num_args)
-;  (newline)
-;  (display pars)
-;  (newline)
-;  (display (length pars))
-  
-  (cond [(= (length pars) num_args)
-            
-         (append
-             
+  (define num_locals (function-locals func))  
+  (cond [(= (length pars) num_args)            
+         (append             
           (inst 'move '(0 sp) 0)   ;; reserved for jsr/return_value
-          (inst 'move '(1 sp) 'fp) ;; previous value of the frame pointer 
-
-          (inst 'add 'sp 'sp 2)
-          
+          (inst 'move '(1 sp) 'fp) ;; previous value of the frame pointer
+          (inst 'add 'sp 'sp 2)          
           ;; eval parameters
-          (foldr append empty (map (λ(x) (compile-exp x env)) pars))
-             
+          (foldr append empty (map (λ(x) (compile-exp x env)) pars))             
           (inst 'sub 'fp  'sp num_args) ;; set the frame pointer to the first arg
-        
           (inst 'jsr '(-2 fp) (string->symbol (format "_~a" id)))
-          (inst 'move '(-2 fp) '(-1 sp))
-             
-          (inst 'sub 'sp 'fp 1) ;; set the frame pointer back such that the top of the stack is the result
-             
+          (inst 'move '(-2 fp) '(-1 sp))             
+          (inst 'sub 'sp 'fp 1)
+          ;; set the frame pointer back such that the top of the stack is the result
           (inst 'move 'fp '(-1 fp)) ;; set the frame pointer to the first arg
-      
-          )]
-           
+          )]           
         [else (arguments-error (format "mismatch for function ~a" id))]))
 
 
-;;    OP TRANSLATION
+
+;;    OP Translation
 ;; -----------------------------------------
 (define op-table (make-hash '((+ add) (- sub) (* mul) (div div) (mod mod)
                                       (< lt) (> gt) (<= le) (>= ge) (= equal) (!= not-equal)
@@ -162,7 +175,9 @@
   (define out (hash-ref op-table symbol #f))
   (if out (car out) (unknown-operator-error (format "could not find operator ~a" symbol))))
 
-;;    EXPRESTION EVALUATION
+
+
+;;    Expression Evaluation
 ;; ----------------------------------------
 
 (define (imm? x) (or (symbol? x) (number? x) (boolean? x)))
@@ -174,7 +189,6 @@
     [else x]))
 
 (define (compile-exp exp env)
-
   (match exp
     [(? imm? exp)
      (append
@@ -190,10 +204,6 @@
     [(list (? builtin? unop) subexp1)
      (generate-unop-frame unop subexp1 env)]
     [(list name args ...)
-;     (newline)
-;     (display "matched -----")
-;     (display args)
-;     (newline)
      (apply-function name args env)]))
 
 
@@ -204,14 +214,11 @@
        [(empty? ops)
         (append
          (inst 'move 'sp #t)
-         (inst 'add  'sp 'sp 1))]
-       
+         (inst 'add  'sp 'sp 1))]       
        [(empty? (rest ops))
-        (compile-exp (first ops) env)]
-       
+        (compile-exp (first ops) env)]       
        [(empty? (rest (rest ops)))
-        (generate-binop-frame 'and (first ops) (second ops) env)]
-       
+        (generate-binop-frame 'and (first ops) (second ops) env)]       
        [else
         (generate-binop-frame 'and (first ops) (cons 'and (rest ops)) env)])]))
 
@@ -236,8 +243,8 @@
   (define val2 (compile-exp exp2 env))
   (define binop (trans-op op))
   (append
-    val1
-    val2
+   val1
+   val2
    (inst 'sub 'sp 'sp 1)
    (inst binop '(-1 sp) '(-1 sp) '(0 sp))))
 
@@ -245,27 +252,26 @@
   (define val1 (compile-exp exp1 env))
   (define unop (trans-op op))
   (append
-    val1
+   val1
    (inst unop '(-1 sp) '(-1 sp))))
 
 
 
-;;    STATEMENT COMPILATION
+;;    Statement Compilation
 ;; ----------------------------------------
-
-
-;(define compile-exp +)
 
 (define counter
   (let [(c 0)]
     (λ()(set! c (+ c 1)) c)))
 
+
+;; ------- Return -------
 (define (compile-return exp env)
   (append
    (compile-exp exp env)
    (inst 'jump '(-2 fp))))
 
-;;;; fix
+
 (define (compile-set var exp env)
   (define target (hash-ref env var #f))
   (unless target  (unknown-identifer-error var))
@@ -284,17 +290,19 @@
   (define c_texp (compile-stmt texp env))
   (define c_fexp (compile-stmt fexp env))
   (append
-        c_test
-        (inst 'sub 'sp 'sp 1)
-        (inst 'branch '(0 sp) jump_true)
-        c_fexp
-        (inst 'jump jump_end)
-        (inst 'label jump_true)
-        c_texp
-        (inst 'label jump_end)))
+   c_test
+   (inst 'sub 'sp 'sp 1)
+   (inst 'branch '(0 sp) jump_true)
+   c_fexp
+   (inst 'jump jump_end)
+   (inst 'label jump_true)
+   c_texp
+   (inst 'label jump_end)))
+
 
 (define (compile-seq stmts env)
   (foldr append empty  (map (lambda (x) (compile-stmt x env)) stmts)))
+
 
 (define (compile-while test stmts env)
   ;; labels
@@ -305,15 +313,16 @@
   ;; pre compute if possible
   (define expr (compile-exp test env))
   (append 
-        (inst 'label while_top)
-        expr
-        (inst 'sub 'sp 'sp 1)
-        (inst 'branch '(0 sp) while_body)
-        (inst 'jump while_end)
-        (inst 'label while_body)
-        (compile-seq stmts env)
-        (inst 'jump while_top)
-        (inst 'label while_end)))
+   (inst 'label while_top)
+   expr
+   (inst 'sub 'sp 'sp 1)
+   (inst 'branch '(0 sp) while_body)
+   (inst 'jump while_end)
+   (inst 'label while_body)
+   (compile-seq stmts env)
+   (inst 'jump while_top)
+   (inst 'label while_end)))
+
 
 (define (compile-print expr env)
   (cond
@@ -322,9 +331,10 @@
            (compile-exp expr env)
            (inst 'sub 'sp 'sp 1)
            (inst 'print-val '(0 sp)))]))
-  
-(define (compile-stmt stmt env)
 
+
+
+(define (compile-stmt stmt env)
   (match stmt
     [`(set ,var ,expr) (compile-set var expr env)]
     [`(iif ,test ,tstmt ,fstms) (compile-iif  test tstmt fstms env)]
@@ -335,8 +345,11 @@
     [`(skip) empty]
     [x (compile-exp x env)]))
 
-;;    COMPILE FUNCTIONS BODIES
+
+
+;;    Compile Function Definition
 ;; -----------------------------------------
+
 
 (define (compile-locals locals environment)
   (define (f local)
@@ -366,29 +379,31 @@
              (compile-stmt return env))]
     [else (malformed-function-error f)]))
 
-;;     COMPILE PROGRAM
-;; -------------------------------
-(define (compile-simpl prog)
-  (set! func-table (generate-function-table prog))
-  (define res (hash-ref func-table 'main #f))
-  (cond [(boolean? res) empty]
-        [else
-         (append
-          (inst 'jump '_MAIN)
-          (foldr append empty (map compile-func prog))
-          (inst 'label '_MAIN)
-          (apply-function 'main empty (make-hash))
-          (inst 'halt)
-          (inst 'data 'sp 'stack)
-          (inst 'data 'fp 'stack)
-          (inst 'data 'stack (stack-size)))]
-        ))
-
-(define func-table empty)
 
 
 
-;(define prog1 '((fun (f a b)(vars[](return (+ (* a a) b))))(fun (main)(vars () (print (f 3 2)) (print "here") (return 0)))))
+
+;;    TESTS
+;; -----------------------------------------
+
+;(check-error (make-function-table '((fun () (return 0)))))
+;(check-error (make-function-table '((fun (name1)))))
+;(check-error (make-function-table '((fun () (return 0)))))
+;(check-error (make-function-table '((func (name1) (return 0)))))
+;
+;
+;(define prog '((fun (name1) (vars [] (return 0))) (fun (name2 arg1) (vars [(id 1)] (return 0)))))
+;(define func-table (make-function-table prog))
+;
+;(check-expect (get-number-args func-table 'name1) 0)
+;(check-expect (get-number-args func-table 'name2) 1)
+;(check-expect (get-number-args func-table 'name3) 3)
+;(check-error (get-number-args func-table 'not-a-name))
+;(check-error (get-number-args func-table 5))
+
+
+;(define prog1 '((fun (f a b)(vars[](return (+ (* a a) b))))
+;                (fun (main)(vars () (print (f 3 2)) (print "here") (return 0)))))
 ;;(map compile-func prog)
 ;
 
@@ -398,7 +413,8 @@
 ;;; tests for function
 ;(define arg-test-1 '((fun (f)(vars ()(return 1)))(fun (main)(vars ()(print (f))(return 0)))))
 ;(define arg-test-2 '((fun (f a)(vars ()(return a)))(fun (main)(vars ()(print (f 2))(return 0)))))
-;(define arg-test-3 '((fun (f a b)(vars ()(return b)))(fun (main)(vars ()(print (f 3 3))(return 0)))))
+;(define arg-test-3 '((fun (f a b)(vars ()(return b)))
+;                     (fun (main)(vars ()(print (f 3 3))(return 0)))))
 ;(define local-test-4 '((fun (f)(vars ([x 4])(return 4)))(fun (main)(vars ()(print (f))(return 0)))))
 ;
 ;(define bad-fun-1 '((fun ()(vars ()(return 1)))))
@@ -410,7 +426,8 @@
 ;
 ;(define bad-app-1 '((fun (f)(vars ()(return 1)))(fun (main)(vars ()(print (f 1))(return 0)))))
 ;(define bad-app-2 '((fun (f a)(vars ()(return a)))(fun (main)(vars ()(print (f))(return 0)))))
-;(define bad-app-3 '((fun (f a b)(vars ()(return b)))(fun (main)(vars ()(print (f 3 3 4))(return 0)))))
+;(define bad-app-3 '((fun (f a b)(vars ()(return b)))
+;                    (fun (main)(vars ()(print (f 3 3 4))(return 0)))))
 ;
 ;;; tests for iif
 ;(define iif-test-1 '((fun (main)(vars ()(iif true (print 1) (print 0))(return 0)))))
