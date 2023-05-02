@@ -52,7 +52,7 @@ program	 	=	 	(vars [(id number) ...] stmt ...) <br> <br>
 
 ### SIMPL-F: Supporting Functions
 Syntax for defining functions in SIMPL-F: <br>
-A program now is a sequence of functions. If there is a main function, that function si applied with no arguments to run the program; otherwise, the program does nothing (pretty much like how C works). <br> <br>
+A program now is a sequence of functions. If there is a main function, that function is applied with no arguments to run the program; otherwise, the program does nothing (pretty much like how C works). <br> <br>
   program	=	function ...  <br> <br>
  	 	 	 	 
   function = (fun (id id ...) (vars [(id int) ...] stmt ...))
@@ -64,14 +64,16 @@ A program now is a sequence of functions. If there is a main function, that func
 &emsp;&emsp; 	 	| ...
 
 ## The Project
-This project is about writing an compiler from SIMPL-F to A-PRIMPL, completed as two consecutive assignment questions of CS 146, W23 offering. For information about the assembly language, A-PRIMPL, and its associated machine language, PRIMPL, please refer to the [assembler project][3]. For convenience, the [assembler](Assembler.rkt) and the [PRIMPL simulator](Simulator.rkt) have also been uploaded to this project. Therefore, he A-PRIMPL code produced by compiler can be further assembled into PRIMPL machine code, and executed by the PRIMPL simulator, if you will. <br>
-With regard to the assignment, no starter code has been given except for the [PRIMPL simulator](Simulator.rkt), which was for the use of helping student understand the core of PRIMPL as well as facilitating debugging process. Another helpful resource was the assembler we wrote earlier, we used it along with the PRIMPL simulator for deugging purpose. Considering the difficulty of the assignment, the instructor team has allowed this assignment to be completed in pairs.
+This project is about writing an compiler from SIMPL-F to A-PRIMPL, completed as two consecutive assignment questions of CS 146, W23 offering. For information about the assembly language, A-PRIMPL, and its associated machine language, PRIMPL, please refer to the [assembler project][3]. For convenience, the [assembler](Assembler.rkt) and the [PRIMPL simulator](Simulator.rkt) have also been uploaded to this project. Therefore, the A-PRIMPL code produced by compiler can be further assembled into PRIMPL machine code, and executed by the PRIMPL simulator, if you will. <br>
+With regard to the assignment, no starter code has been given except for the [PRIMPL simulator](Simulator.rkt), which was for the use of helping student understand the core of PRIMPL as well as facilitating debugging process. Another helpful resource was the assembler we wrote earlier, we used it along with the PRIMPL simulator for deugging purpose. Considering the difficulty of the assignment, the instructor team has allowed this assignment to be completed in pairs. <br>
+Both assignments were completed by Chunxin Zheng and Lex Stapleton.
 
 [3]: https://github.com/ChunxinZheng/Pseudo-Assembler.git
 
 ## Compiling
 ### Variables
-To avoid conflicts, we will prefix the name of each SIMPL variable with an underscore character "_". This helps dinstinguish between variables in SIMPL and the variables we produce during compiling.
+All variables in the SIMPL code will be substituted with their corresponding locations (more information is stated in the [next section](#stack-frame).
+To avoid potential conflicts that may be caused by function names, we will prefix the name of each SIMPL function with an underscore character "_" to dinstinguish them from variables used for compiling.
 
 ### Stack Frame
 To support recursive calls for functions, we simulate a stack with two pointers, Stack Pointer ```sp``` and Frame Pointer ```fp```. <br>
@@ -92,25 +94,20 @@ The compiler deals with these three as as following:
 - pop: ```(sub sp sp N)``` The top N slots of the stack are freed, the values are popped <br> <br>
 
 For this compiler, the rules for allocating temporary storage when compiling statements go as follows (we will discuss everything about functions in a later part): <br>
-1. If the statement will be returning some value, it will allocate space itself, and then pop the returning value into the stack frame.
+1. If the statement will be returning some value, it will push the returning value into the stack, then update the stack pointer.
 E.g. compiling ```5``` =>
 ```racket
+     (move (0 sp) 5)
      (add sp sp 1)
-     (move (-1 sp) 5)
 ```
-2. If the statement is expecitng some other statements to be executed beforehand (E.g. for compiling ```(+ 2 3)```we first need to compile 2 and 3), it will compile those statements first. Then, the statement proceeds with the temporary values stored into the stack by the previous compiled statements. It will also be responsible for popping out the temporary values stored by its sub-statements. <br>
+2.  <br>
 E.g. comping ```(+ exp1 exp2)``` =>
 ```racket
-     (add sp sp 1)                 ;; Reserve space for the return of statement itself
      compile exp1
      compile exp2
-     (add (-3 sp) (-2 sp) (-1 sp)) ;; Since compiling exp1 and exp2 will increment sp by exactly 2,
-                                   ;; the returning spot for the current statement is (-3 sp).
-                                   ;; Note for subtraction and some other statements the order
-                                   ;; of (-2 sp) and (-1 sp) could be important
-     (sub sp sp 2)                 ;; Pop the temporary values stored by exp1 and exp2  
+     (sub sp sp 1)
+     (add (-1 sp) (-1 sp) (0 sp))  
 ```
-<br>Techniques for compiling most of the other statements are similar to the way we compile ```(+ exp1 exp2)``` , we provide a few more examples of others.
 
 #### (set var exp)
 ```racket
