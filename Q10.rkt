@@ -27,11 +27,35 @@
 
 (require "Assembler.rkt" "Simulator.rkt")
 
+;; [run-simpl] would produce the result of running the simpl code.
+;; Run it in the evaluating window to see the resulted output.
 (define (run-simpl simpl)
   (define primpl (primpl-assemble (compile-simpl simpl)))
   (load-primp primpl) (run-primp))
 
 
+
+;;    Example
+;; ----------------------------------------
+;; This section provides a basic demonstration of the program's feature.
+;; More tests are provided at the end of the file.
+
+;'((fun (main)
+;       (vars [(n 10) (b 2) (y 0)]
+;             (set y (power b n))
+;             (print y)
+;             (return 0)))
+;  (fun (power base expo)
+;       (vars [(v 1)]
+;             (while (> expo 0)
+;                    (set v (* base v))
+;                    (set expo (- expo 1)))
+;             (print v)
+;             (print "\n")
+;             (return v))))
+
+; Produces 2^10
+; Would output: 1024\n1024
 
 
 ;;    Error Handling
