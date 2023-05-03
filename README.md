@@ -96,11 +96,11 @@ To avoid potential conflicts that may be caused by function names, we will prefi
 
 ### Stack Frame
 To support recursive calls for functions, we simulate a stack with two pointers, Stack Pointer ```sp``` and Frame Pointer ```fp```. <br>
-Each function call will generate a stack frame that contains values for arguements, local variables, and other relative information such as its return address (more detailed information will be stated in the section [Compiling a Function Call](#compiling-a-function-call). <br>
+Each function call will generate a stack frame that contains values for arguements, local variables, and other relative information such as its return address (more detailed information will be stated in the section [Compiling a Function Call](#compiling-a-function-call)). <br>
 <br>
 The ```sp``` stores the address of the first available space in the stack, that is, ```sp``` points to the first available space in the simulated stack. <br>
 The ```fp``` points to the first argument for the current function call. <br> 
-Both pointers are mutated and dereferenced by basic arithmetics, [move], and [offset] instructions. <br>
+Both pointers are mutated and dereferenced by basic arithmetics, ```move```, and ```offset``` instructions. <br>
 &emsp; E.g. ```(add sp sp 2)``` means to increment the ```sp``` by 2. <br>
 &emsp; &emsp; &nbsp; ```(move (0 sp) fp)``` means to store the value stored in ```fp``` to the address where ```sp``` points to. <br>
 
