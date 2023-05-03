@@ -182,6 +182,7 @@ fp-> return_ADDR/value    ;; where pc should return to, reused at the end to sto
      m
 sp-> temporary storage   
 ```
+
 <br>
 During the first scanning stage of the program, a table that maps each variable to the address in the stack relative to the Frame Pointer where the value of such variable may be stored in during a function applicaiton. <br>
 <br>
