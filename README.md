@@ -88,8 +88,8 @@ Both pointers are mutated and dereferenced by basic arithmetics, [move](...), an
 Consider: ```(+ exp1 exp2)```. Compiling statement will recursively emit code to compute exp1, then exp2, and finally add. We need to allocate some stack space, and push the first value into stack for storage while compting for the second. After summing these two, we need to pop these two values out of stack so it can be reserved for future use. <br> <br>
 
 The compiler deals with these three as as following:
-- allocate space: ```(add sp sp 1)``` The sp has been incremented once, so the slot at the location  &ensp; ```(-1 sp)``` becomes available
-- push: ```(move (-1 sp) N)``` The value N is stored at the top of the stack
+- push: ```(move (0 sp) N)``` The value N is stored at the top of the stack
+- allocate space: ```(add sp sp 1)``` The sp has been incremented once, so the slot at the location  &ensp; ```(0 sp)``` becomes available
 - pop: ```(sub sp sp N)``` The top N slots of the stack are freed, the values are popped <br> <br>
 
 For this compiler, the rules for allocating temporary storage when compiling statements go as follows (we will discuss everything about functions in a later part): <br>
@@ -134,21 +134,19 @@ E.g. comping ```(+ exp1 exp2)``` =>
 ### Compiling a Function Definition
 The number of the function arguments and local variables remains unchanged. Thus we are able to deduce the address of any variable of the function relative to the ```fp```. Therefore, this compiler is designed to have each stack frame initialized as follows: <br>
 ```racket
-     return value   ;; to save the return value of the current function
-fp-> return_ADDR    ;; where pc should return to 
-     return_fp      ;; where fp should return to
+fp-> return_ADDR/value    ;; where pc should return to, reused at the end to store the returned value
+     return_fp            ;; where fp should return to
      parameters
      locals
 sp-> temporary storage   
 ```
 As an example, the function (f x y), with x and y as parameters, in addition with n and m as locals, will have a stack frame initialized as follows: <br>
 ```racket
-     return value   ;; to save the return value of the current function
-fp-> return_ADDR    ;; where pc should return to 
-     return_fp      ;; where fp should return to
-     _f_x           ;; parameters
+fp-> return_ADDR/value    ;; where pc should return to, reused at the end to store the returned value
+     return_fp            ;; where fp should return to
+     _f_x                 ;; parameters
      _f_y
-     _f_n           ;; locals
+     _f_n                 ;; locals
      _f_m
 sp-> temporary storage   
 ```
