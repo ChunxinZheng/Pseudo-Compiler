@@ -85,8 +85,8 @@ With regard to the assignment, no starter code has been given except for the [PR
 
 ### Addtional Feature for PRIMPL and A-PRIMPL
 #### ```jsr``` (Jump to Subroutine)
-Besides [PRIMPL](https://github.com/ChunxinZheng/Pseudo-Assembler#grammar-and-other-details-of-primpl)
 When we add functions to SIMPL, it becomes necessary to determine which line of code should be executed after a function is returned. As a result, we need a way to store the value of ```PC``` before it is mutated. <br>
+Thus, besides original features in [PRIMPL](https://github.com/ChunxinZheng/Pseudo-Assembler#grammar-and-other-details-of-primpl), a new feature is added.
 The instruction ``` (jsr (30) 5) ``` means to stores the current value of ```PC``` to the address ```30``` in the memory, then set ```PC``` to ```5```.
 
 
