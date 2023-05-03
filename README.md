@@ -149,6 +149,7 @@ fp-> return_ADDR/value    ;; where pc should return to, reused at the end to sto
 sp-> temporary storage   
 ```
 
+<br>
 During the first scanning stage of the program, a table (```environment```) that maps each variable to the address in the stack relative to the ```fp``` where the value of such variable may be stored in during a function applicaiton. <br>
 <br>
 When compiling a function definition, a label with a name that corresponds to the function name is created for any future function calls to jump to. <br>
@@ -180,29 +181,31 @@ compile aexp
 ```
 
 ### Compiling a Function Call
-As described above, besides function arguments and local variables, some other information should also be stored for each funtion call, namely the return, the ```return_fp```, where fp should be reset to, as well as ```return_ADDR```, to which we should reset the PC to. We will handle these along with setting up the parameters while compiling a function call.<br>
 
+As described above, besides function arguments and local variables, there are several information should be stored for each funtion call, namely the value to ```return```, the previous value of the ```fp``` before it is mutated, as well as which code should be executed after the ```return``` (that is, the previous value of ```PC``` before it is mutated). <br>
+Since the frame pointer and the stack pointer may be mutated constantly, a way to determine the information is to reserve spaces at the start of compiling the function call. <br>
+We could have a dedicated space for the value to ```return```, but since we will only use it after we ```jump``` back from the function call, we could simply store it in the space that stores the previous value of ```PC```, and it will remains at the top of the stack after updates of the ```sp```. <br>
 <br>
-As a result, when compiling a function application, we reserve two spaces to store ```return_ADDR``` and ```return_fp```, and we increment ```sp``` by 2 (so that it points to the first available space again). Then we include the compiled code to evaluating given arguements, and update the ```fp```. Note updating the fp can be a bit tricky due to how this compiler structures the stack frame (please refer to the comments in the code for further detail). <br>
-After everything above gets set, we ```jsr``` to the corresponding label while storing the current ```PC``` to the previously reserved space, namely ```(0 fp)```. At this point, everything about the function call is done. As the program runs through the jsr, it will head to the start of the corresponding function definition and start executing the instructions there.<br>
-E.g. (f 2 3) ->      (the locals in f are irrelevant)
-
+So compiling a function application will be composed of following steps:
 ```racket
-(add sp sp 1)
-(move (1 sp) fp)     ;; set up RETURN_fp
-(add sp sp 2)        ;; (add sp sp 2) since we need to skip RETURN_ADDR as well,
-                     ;; we will come back later and set up RETURN_ADDR with jsr
-compile 2            ;; we do not move fp at this point since we might still need 
-compile 3            ;; to reference variables of current function
-
-(add sp sp 1)        
-(add (-1 sp) (* -1 (+ 3 (# of parameters))) sp) ;; tricky part, sp at at this point is
-(move fp (-1 sp))                               ;; (# of parameters + 3) ahead of where fp supposed to be
-(sub sp sp 1)   
-
-(jsr (0 fp) START_f)
+  (move (0 sp) 0)         ;; reserved for jsr/return_value [1.]
+  (move (1 sp) fp)        ;; previous value of the frame pointer [1.]
+  (add sp sp 2)           ;; [2.]
+  (foldr append empty (map (λ(x) (compile-exp x env)) pars))    ;; evaluate parameters [3.]        
+  (sub fp sp num_args)   ;; set the frame pointer to the first arg [4.]
+  (jsr (-2 fp) (string->symbol (format "_~a" id)))              ;; function subroutine [5.]
+  (move (-2 fp) (-1 sp))  ;; stores the value           
+  (sub sp fp 1)           ;; set the frame pointer back such that the top of the stack is the result
+  (move fp (-1 fp))       ;; set the frame pointer to the first arg
 ```
 
-
-
+As a result, when compiling a function application, we <br>
+1. Reserve two spaces to store the previous value of ```PC``` and the previous value of ```fp```  respectively. <br>
+2. Increment ```sp``` by 2 (so that it points to the first available space again). <br>
+3. Include the compiled code to evaluating given arguements. <br>
+4. Update the ```fp```. <br>
+5. [```jsr```][...] to the corresponding label while storing the current ```PC``` to the previously reserved space, namely ```(-2 fp)``` (this is how we determine where to ```jump``` back to when we compiling a [```return```](#return) in a function definition). <br>
+6. Move the produced value to its reserved space. <br>
+7. Update the ```sp``` relative to the ```fp```. <br>
+8. Update the ```fp``` back to the previous value of ```fp```. <br>
 
