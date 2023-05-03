@@ -223,7 +223,7 @@ So compiling a function application will be composed of following steps:
   (move (0 sp) 0)         ;; reserved for jsr/return_value [1]
   (move (1 sp) fp)        ;; previous value of the frame pointer [1]
   (add sp sp 2)           ;; [2]
-  (foldr append empty (map (λ(x) (compile-exp x env)) pars))    ;; evaluate parameters [3]        
+  (foldr append empty (map (lambda (x) (compile-exp x env)) pars))    ;; evaluate parameters [3]        
   (sub fp sp num_args)    ;; set the frame pointer to the first arg [4]
   (jsr (-2 fp) (string->symbol (format "_~a" id)))              ;; function subroutine [5]
   (move (-2 fp) (-1 sp))  ;; stores the value [6]          
