@@ -213,7 +213,7 @@ As a result, when compiling a function application, we <br>
 2. Increment ```sp``` by 2 (so that it points to the first available space again). <br>
 3. Include the compiled code to evaluating given arguements. <br>
 4. Update the ```fp```. <br>
-5. [```jsr```][...] to the corresponding label while storing the current ```PC``` to the previously reserved space, namely ```(-2 fp)``` (this is how we determine where to ```jump``` back to when we compiling a [```return```](#return) in a function definition). <br>
+5. [```jsr```](#addtional-feature-for-primpl-and-a-primpl) to the corresponding label while storing the current ```PC``` to the previously reserved space, namely ```(-2 fp)``` (this is how we determine where to ```jump``` back to when we compiling a [```return```](#return) in a function definition). <br>
 6. Move the produced value to its reserved space. <br>
 7. Update the ```sp``` relative to the ```fp```. <br>
 8. Update the ```fp``` back to the previous value of ```fp```. <br>
