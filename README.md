@@ -5,19 +5,19 @@ This compiler was done as two consecutive assignment question of CS 146, W23 off
 [2]: https://github.com/ChunxinZheng/Compiler/issues/2#issue-1693183617
 
 ## Table of Contents
-####[A simple imperative language: SIMPL](#a-simple-imperative-language-simpl)
-&emsp; - [Motivation](#motivation)
-&emsp; - [Grammar](#grammar)
-&emsp; - [SIMPL-F: Supporting Functions](#simpl-f-supporting-functions)
-####[The Project](#the-project)
-&emsp; - [Addtional Feature for PRIMPL and A-PRIMPL](#addtional-feature-for-primpl-and-a-primpl)
-####[Compiling Rules](#compiling-rules)
-&emsp; - [Variables](#variables)
-&emsp; - [Stack Frame](#stack-frame)
-&emsp; - [Compiling Common Statements](#compiling-common-statements)
-&emsp; - [Compiling a Function Definition](#compiling-a-function-definition)
-&emsp; - [Return](#return)
-&emsp; - [Compiling a Function Call](#compiling-a-function-call)
+- [A simple imperative language: SIMPL](#a-simple-imperative-language-simpl) <br>
+&emsp;[Motivation](#motivation) <br>
+&emsp;[Grammar](#grammar) <br>
+&emsp;[SIMPL-F: Supporting Functions](#simpl-f-supporting-functions) <br>
+- [The Project](#the-project) <br>
+&emsp;[Addtional Feature for PRIMPL and A-PRIMPL](#addtional-feature-for-primpl-and-a-primpl) <br>
+- [Compiling Rules](#compiling-rules) <br>
+&emsp;[Variables](#variables) <br>
+&emsp;[Stack Frame](#stack-frame) <br>
+&emsp;[Compiling Common Statements](#compiling-common-statements) <br>
+&emsp;[Compiling a Function Definition](#compiling-a-function-definition) <br>
+&emsp;[Return](#return) <br>
+&emsp;[Compiling a Function Call](#compiling-a-function-call) <br>
 
 
 ## A simple imperative language: SIMPL
