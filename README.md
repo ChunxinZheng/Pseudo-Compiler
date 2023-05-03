@@ -91,7 +91,7 @@ The instruction ``` (jsr (30) 5) ``` means to stores the current value of ```PC`
 
 ## Compiling Rules
 ### Variables
-All variables in the SIMPL code will be substituted with their corresponding locations (more information is stated in the [next section](#stack-frame).
+All variables in the SIMPL code will be substituted with their corresponding locations (more information is stated in the [next section](#stack-frame)).
 To avoid potential conflicts that may be caused by function names, we will prefix the name of each SIMPL function with an underscore character "_" to dinstinguish them from variables used for compiling.
 
 ### Stack Frame
