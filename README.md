@@ -5,6 +5,20 @@ This compiler was done as two consecutive assignment question of CS 146, W23 off
 [2]: https://github.com/ChunxinZheng/Compiler/issues/2#issue-1693183617
 
 ## Table of Contents
+####[A simple imperative language: SIMPL](#a-simple-imperative-language-simpl)
+&emsp; - [Motivation](#motivation)
+&emsp; - [Grammar](#grammar)
+&emsp; - [SIMPL-F: Supporting Functions](#simpl-f-supporting-functions)
+####[The Project](#the-project)
+&emsp; - [Addtional Feature for PRIMPL and A-PRIMPL](#addtional-feature-for-primpl-and-a-primpl)
+####[Compiling Rules](#compiling-rules)
+&emsp; - [Variables](#variables)
+&emsp; - [Stack Frame](#stack-frame)
+&emsp; - [Compiling Common Statements](#compiling-common-statements)
+&emsp; - [Compiling a Function Definition](#compiling-a-function-definition)
+&emsp; - [Return](#return)
+&emsp; - [Compiling a Function Call](#compiling-a-function-call)
+
 
 ## A simple imperative language: SIMPL
 
@@ -75,7 +89,7 @@ When we add functions to SIMPL, it becomes necessary to determine which line of 
 The instruction ``` (jsr (30) 5) ``` means to stores the current value of ```PC``` to the address ```30``` in the memory, then set ```PC``` to ```5```.
 
 
-## Compiling
+## Compiling Rules
 ### Variables
 All variables in the SIMPL code will be substituted with their corresponding locations (more information is stated in the [next section](#stack-frame).
 To avoid potential conflicts that may be caused by function names, we will prefix the name of each SIMPL function with an underscore character "_" to dinstinguish them from variables used for compiling.
@@ -90,7 +104,7 @@ Both pointers are mutated and dereferenced by basic arithmetics, [move](...), an
 &emsp; E.g. ```(add sp sp 2)``` means to increment the ```sp``` by 2. <br>
 &emsp; &emsp; &nbsp; ```(move (0 sp) fp)``` means to store the value stored in ```fp``` to the address where ```sp``` points to. <br>
 
-### Compiling statements within function
+### Compiling Common Statements
 Consider: ```(+ exp1 exp2)```. Compiling statement will recursively emit code to compute exp1, then exp2, and finally add. We need to allocate some stack space, and push the first value into stack for storage while compting for the second. After summing these two, we need to pop these two values out of stack so it can be reserved for future use. <br> <br>
 
 The compiler deals with these three as as following:
