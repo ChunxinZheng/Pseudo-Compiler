@@ -99,13 +99,14 @@ E.g. compiling ```5``` =>
      (move (0 sp) 5)
      (add sp sp 1)
 ```
-2.  <br>
+2. If the statement is an expression, we evaluate sub-expressions respectively, and then combine them at the end <br>
 E.g. comping ```(+ exp1 exp2)``` =>
 ```racket
-     compile exp1
-     compile exp2
+     compile exp1         ;; the result of exp1 goes to the top of the stack, sp is incremented by 1
+     compile exp2         ;; the result of exp2 goes to the top of the stack, sp is incremented by 1 (by 2 in total)
      (sub sp sp 1)
-     (add (-1 sp) (-1 sp) (0 sp))  
+     (add (-1 sp) (-1 sp) (0 sp))   ;; stores the result of (-1 sp)[exp1] adds (0 sp)[exp2] to (-1 sp)
+     ;; now the values of [exp1] (is overwritten) and [exp2] (first available "empty" space for the stack) are unrelated
 ```
 
 #### (set var exp)
