@@ -164,7 +164,7 @@ sp-> temporary storage
 ```
 
 <br>
-During the first scanning stage of the program, a table (&#96;&#96;&#96;environment&#96;&#96;&#96;) that maps each variable to the address in the stack relative to the ```fp``` where the value of such variable may be stored in during a function applicaiton. <br>
+During the first scanning stage of the program, a table (```environment```) that maps each variable to the address in the stack relative to the ```fp``` where the value of such variable may be stored in during a function applicaiton. <br>
 <br>
 When compiling a function definition, a label with a name that corresponds to the function name is created for any future function calls to jump to. <br>
 <br>
