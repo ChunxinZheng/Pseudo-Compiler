@@ -19,6 +19,7 @@ This compiler was done as two consecutive assignment question of CS 146, W23 off
 &emsp;[Return](#return) <br>
 &emsp;[Compiling a Function Call](#compiling-a-function-call) <br>
 
+---
 
 ## A simple imperative language: SIMPL
 
@@ -89,6 +90,7 @@ When we add functions to SIMPL, it becomes necessary to determine which line of 
 Thus, besides original features in [PRIMPL](https://github.com/ChunxinZheng/Pseudo-Assembler#grammar-and-other-details-of-primpl), a new feature is added. <br>
 The instruction ``` (jsr (30) 5) ``` means to stores the current value of ```PC``` to the address ```30``` in the memory, then set ```PC``` to ```5```.
 
+---
 
 ## Compiling Rules
 ### Variables
