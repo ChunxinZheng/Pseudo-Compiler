@@ -182,14 +182,13 @@ fp-> return_ADDR/value    ;; where pc should return to, reused at the end to sto
      m
 sp-> temporary storage   
 ```
-
 <br>
-During the first scanning stage of the program, a table that maps each variable to the address in the stack relative to the ```fp``` where the value of such variable may be stored in during a function applicaiton. <br>
+During the first scanning stage of the program, a table that maps each variable to the address in the stack relative to the Frame Pointer where the value of such variable may be stored in during a function applicaiton. <br>
 <br>
 When compiling a function definition, a label with a name that corresponds to the function name is created for any future function calls to jump to. <br>
 <br>
-The compiled code for evaluating local variables and pushing them into the stack is appended (note that the process of evaluating and pushing the value of arguments will have be done at this point when [applying a function](#compiling-a-function-call)). <br>
-The rest of the function definition is compiled as usual statements with all occurrences of variables are replaced by their addresses relative to the ```fp``` based on the previously generated table.
+The compiled code for evaluating local variables and pushing them into the stack is appended. Note that the process of evaluating and pushing the value of arguments will have be done at this point when applying a function (stated in the next section). <br>
+The rest of the function definition is compiled as usual statements with all occurrences of variables are replaced by their addresses relative to the Frame Pointer based on the previously generated table.
 
 
 
