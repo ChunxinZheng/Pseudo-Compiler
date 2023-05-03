@@ -65,8 +65,7 @@ A program now is a sequence of functions. If there is a main function, that func
 
 ## The Project
 This project is about writing an compiler from SIMPL-F to A-PRIMPL, completed as two consecutive assignment questions of CS 146, W23 offering. For information about the assembly language, A-PRIMPL, and its associated machine language, PRIMPL, please refer to the [assembler project][3]. For convenience, the [assembler](Assembler.rkt) and the [PRIMPL simulator](Simulator.rkt) have also been uploaded to this project. Therefore, the A-PRIMPL code produced by compiler can be further assembled into PRIMPL machine code, and executed by the PRIMPL simulator, if you will. <br>
-With regard to the assignment, no starter code has been given except for the [PRIMPL simulator](Simulator.rkt), which was for the use of helping student understand the core of PRIMPL as well as facilitating debugging process. Another helpful resource was the assembler we wrote earlier, we used it along with the PRIMPL simulator for deugging purpose. Considering the difficulty of the assignment, the instructor team has allowed this assignment to be completed in pairs. <br>
-Both assignments were completed by Chunxin Zheng and Lex Stapleton.
+With regard to the assignment, no starter code has been given except for the [PRIMPL simulator](Simulator.rkt), which was for the use of helping student understand the core of PRIMPL as well as facilitating debugging process. Another helpful resource was the assembler we wrote earlier, we used it along with the PRIMPL simulator for deugging purpose. Considering the difficulty of the assignment, the instructor team has allowed this assignment to be completed in pairs. Both assignments were completed by Chunxin Zheng and Lex Stapleton.
 
 [3]: https://github.com/ChunxinZheng/Pseudo-Assembler.git
 
