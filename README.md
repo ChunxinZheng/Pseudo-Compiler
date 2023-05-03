@@ -126,7 +126,7 @@ E.g. compiling ```5``` =>
 ```
 #### Compiling an Expression <br>
 we evaluate sub-expressions respectively, and then combine them at the end <br>
-E.g. comping ```(+ exp1 exp2)``` =>
+E.g. compiling ```(+ exp1 exp2)``` =>
 ```racket
   compile exp1         ;; the result of exp1 goes to the top of the stack, sp is incremented by 1
   compile exp2         ;; the result of exp2 goes to the top of the stack, sp is incremented by 1 (by 2 in total)
