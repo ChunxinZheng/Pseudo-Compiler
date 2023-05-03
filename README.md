@@ -100,7 +100,7 @@ Each function call will generate a stack frame that contains values for arguemen
 <br>
 The ```sp``` stores the address of the first available space in the stack, that is, ```sp``` points to the first available space in the simulated stack. <br>
 The ```fp``` points to the first argument for the current function call. <br> 
-Both pointers are mutated and dereferenced by basic arithmetics, [move](...), and [offset](...) instructions. <br>
+Both pointers are mutated and dereferenced by basic arithmetics, [move], and [offset] instructions. <br>
 &emsp; E.g. ```(add sp sp 2)``` means to increment the ```sp``` by 2. <br>
 &emsp; &emsp; &nbsp; ```(move (0 sp) fp)``` means to store the value stored in ```fp``` to the address where ```sp``` points to. <br>
 
@@ -213,7 +213,7 @@ As a result, when compiling a function application, we <br>
 2. Increment ```sp``` by 2 (so that it points to the first available space again). <br>
 3. Include the compiled code to evaluating given arguements. <br>
 4. Update the ```fp```. <br>
-5. [```jsr```](#addtional-feature-for-primpl-and-a-primpl) to the corresponding label while storing the current ```PC``` to the previously reserved space, namely ```(-2 fp)``` (this is how we determine where to ```jump``` back to when we compiling a [```return```](#return) in a function definition). <br>
+5. [```jsr```] to the corresponding label while storing the current ```PC``` to the previously reserved space, namely ```(-2 fp)``` (this is how we determine where to ```jump``` back to when we compiling a [```return```](#return) in a function definition). <br>
 6. Move the produced value to its reserved space. <br>
 7. Update the ```sp``` relative to the ```fp```. <br>
 8. Update the ```fp``` back to the previous value of ```fp```. <br>
