@@ -69,6 +69,12 @@ With regard to the assignment, no starter code has been given except for the [PR
 
 [3]: https://github.com/ChunxinZheng/Pseudo-Assembler.git
 
+### Addtional Feature for PRIMPL and A-PRIMPL
+#### ```jsr``` (Jump to Subroutine)
+When we add functions to SIMPL, it becomes necessary to determine which line of code should be executed after a function is returned. As a result, we need a way to store the value of ```PC``` before it is mutated. <br>
+The instruction ``` (jsr (30) 5) ``` means to stores the current value of ```PC``` to the address ```30``` in the memory, then set ```PC``` to ```5```.
+
+
 ## Compiling
 ### Variables
 All variables in the SIMPL code will be substituted with their corresponding locations (more information is stated in the [next section](#stack-frame).
@@ -204,7 +210,7 @@ So compiling a function application will be composed of following steps:
   (move (1 sp) fp)        ;; previous value of the frame pointer [1]
   (add sp sp 2)           ;; [2]
   (foldr append empty (map (λ(x) (compile-exp x env)) pars))    ;; evaluate parameters [3]        
-  (sub fp sp num_args)   ;; set the frame pointer to the first arg [4]
+  (sub fp sp num_args)    ;; set the frame pointer to the first arg [4]
   (jsr (-2 fp) (string->symbol (format "_~a" id)))              ;; function subroutine [5]
   (move (-2 fp) (-1 sp))  ;; stores the value [6]          
   (sub sp fp 1)           ;; set the frame pointer back such that the top of the stack is the result [7]
